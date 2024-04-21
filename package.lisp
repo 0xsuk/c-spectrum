@@ -24,7 +24,8 @@
    #:destroy-window
    #:render-fill-rect
    #:rect
-   #:INIT-VIDEO))
+   #:INIT-VIDEO
+   #:render-draw-line))
 
 (defpackage :alsa
   (:use

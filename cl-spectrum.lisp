@@ -108,18 +108,39 @@
 (defparameter *fps* 30)
 (defparameter *desired-delta* (/ 1000 *fps*))
 
-(defun interface-loop (window renderer)
-  (cffi:with-foreign-object (event& :pointer)
-    (loop while *running* do
-      (let ((start-time (sdl2:get-ticks)))
-        (loop while (= 1 (sdl2:poll-event event&)) do
-          (if (= (cffi:mem-ref event& :int32) #x100) ; =quit
-              (setf *running* nil)))
+(defun draw (event& renderer texture)
+  (let ((start-time (sdl2:get-ticks)))
+    
+    (error "error okoota")
+    
+    (loop while (= 1 (sdl2:poll-event event&)) do
+      (if (= (cffi:mem-ref event& :int32) #x100) ; =quit
+          (setf *running* nil)))
+    
+    (sdl2:set-render-target renderer texture)
 
-        (let ((delta (- (sdl2:get-ticks) start-time)))
-          (when (< delta *desired-delta*)
-            (sdl2:delay (ceiling (- *desired-delta* delta)))))
-        )))
+    (sdl2:set-render-draw-color renderer 255 100 255 100)
+    (sdl2:render-draw-line renderer 100 0 *width* *height*)
+    (sdl2:set-render-target renderer (cffi:null-pointer))
+    
+    (cffi:with-foreign-object (dst 'sdl2:rect)
+      (setf (cffi:foreign-slot-value dst 'sdl2:rect 'sdl2::x) 0
+            (cffi:foreign-slot-value dst 'sdl2:rect 'sdl2::y) 0
+            (cffi:foreign-slot-value dst 'sdl2:rect 'sdl2::w) *width*
+            (cffi:foreign-slot-value dst 'sdl2:rect 'sdl2::h) *height*)
+      (sdl2:render-copy renderer texture (cffi:null-pointer) dst))
+    
+    (let ((delta (- (sdl2:get-ticks) start-time)))
+      (when (< delta *desired-delta*)
+        (sdl2:delay (ceiling (- *desired-delta* delta)))))
+    )
+  )
+
+(defun interface-loop (renderer)
+  (let ((texture (sdl2:create-texture renderer 3373694468 2 *width* *height*))) ; RGBA=, TARGEt=2
+    (cffi:with-foreign-object (event& :int32)
+      (loop while *running* do
+        (draw event& renderer texture))))
   )
 
 (defparameter ref nil)
@@ -127,16 +148,16 @@
 (defun run-interface ()
   (sdl2:init sdl2:init-video)
   (let ((window (sdl2:create-window "cl-spectrum" 100 100 *width* *height* #x4)))
-    (setf ref window)
     (when (cffi:null-pointer-p window)
       (error "window creation failed"))
 
     (let ((renderer (sdl2:create-renderer window -1 1)))
       (when (cffi:null-pointer-p renderer)
         (error "renderer creation failed"))
+      (setf ref renderer)
       
       (unwind-protect
-           (continue (interface-loop window renderer))
+           (interface-loop renderer)
         (sdl2:destroy-renderer renderer)
         (sdl2:destroy-window window)
         (sdl2:quit)

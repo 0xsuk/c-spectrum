@@ -79,5 +79,11 @@
   (x :int)
   (y :int)
   (w :int)
-  (h :int)
-  )
+  (h :int))
+
+(defcfun (render-draw-line "SDL_RenderDrawLine") :int
+  (renderer :pointer)
+  (x1 :int)
+  (y1 :int)
+  (x2 :int)
+  (y2 :int))
