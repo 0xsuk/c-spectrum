@@ -2,6 +2,30 @@
   (:use
    :cl))
 
+(defpackage :sdl2
+  (:use
+   :cl
+   :cffi)
+  (:export
+   #:init
+   #:create-window
+   #:create-renderer
+   #:create-texture
+   #:get-ticks
+   #:poll-event
+   #:set-render-draw-color
+   #:render-present
+   #:delay
+   #:destroy-renderer
+   #:render-copy
+   #:render-clear
+   #:set-render-target
+   #:quit
+   #:destroy-window
+   #:render-fill-rect
+   #:rect
+   #:INIT-VIDEO))
+
 (defpackage :alsa
   (:use
    :cl

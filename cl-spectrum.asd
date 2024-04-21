@@ -2,7 +2,7 @@
   :name "cl-spectrum"
   :author "0xsuk"
   :depends-on (:cffi
-               :sd2)
+               :bt-semaphore)
   :serial t
   :components (
                (:file "package")

@@ -104,14 +104,39 @@
 
 (defparameter *width* 900)
 (defparameter *height* 600)
+(defparameter *running* t)
 
+;; (defun sdl-loop (renderer texture)
+;;   (sleep 1)
+;;   (sdl2:set-render-target renderer texture)
 
-(defun main ()
-  (sdl2:with-window (window :title "cl-spectrum"
-                     :w width
-                     :h height)
-    (sdl2:with-renderer (renderer window :index -1 :flags '(sdl2-ffi:+sdl-renderer-software+))
-      
-      (let ((texture (sdl2:create-texture renderer sdl2:+pixelformat-rgba8888+ SDL2-FFI:+SDL-TEXTUREACCESS-TARGET+ *width* *height*)))
-        
-        ))))
+;;   (sdl2:set-render-draw-color renderer 0 0 0 0)
+;;   (sdl2:render-clear renderer)
+
+;;   (sdl2:set-render-draw-color renderer 255 255 255 255)
+;;   (sdl2:render-draw-line renderer 0 0 300 300)
+  
+;;   (sdl2:set-render-target renderer nil)
+
+;;   (let ((dst (sdl2:make-rect 0 0 *width* *height*)))
+;;     (sdl2:render-copy renderer texture :dest-rect dst))
+;;   (print *running*)
+;;   )
+
+;; (defun main ()
+;;   (bt:make-thread
+;;    (lambda ()
+;;      (sdl2:with-init (:video)
+;;        (sdl2:with-window (window :title "cl-spectrum"
+;;                                  :w *width*
+;;                                  :h *height*)
+;;          (sdl2:with-renderer (renderer window :index -1 :flags '(:software))
+           
+;;            (let ((texture (sdl2:create-texture renderer sdl2:+pixelformat-rgba8888+ SDL2-FFI:+SDL-TEXTUREACCESS-TARGET+ *width* *height*)))
+
+;;              (sdl2-ffi.functions:sdl-poll-event)
+;;              (sdl2:with-event-loop (:method :poll)
+;;                (:quit () t)
+;;                (:idle () (if *running*
+;;                              (sdl-loop renderer texture)
+;;                              (sdl2:push-event :quit)))))))))))
