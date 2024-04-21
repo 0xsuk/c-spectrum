@@ -6,6 +6,7 @@
   :serial t
   :components (
                (:file "package")
+               (:file "sdl2")
                (:file "alsa")
                (:file "cl-spectrum"))
   )

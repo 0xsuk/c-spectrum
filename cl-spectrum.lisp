@@ -105,38 +105,46 @@
 (defparameter *width* 900)
 (defparameter *height* 600)
 (defparameter *running* t)
+(defparameter *fps* 30)
+(defparameter *desired-delta* (/ 1000 *fps*))
 
-;; (defun sdl-loop (renderer texture)
-;;   (sleep 1)
-;;   (sdl2:set-render-target renderer texture)
+(defun interface-loop (window renderer)
+  (cffi:with-foreign-object (event& :pointer)
+    (loop while *running* do
+      (let ((start-time (sdl2:get-ticks)))
+        (loop while (= 1 (sdl2:poll-event event&)) do
+          (if (= (cffi:mem-ref event& :int32) #x100) ; =quit
+              (setf *running* nil)))
 
-;;   (sdl2:set-render-draw-color renderer 0 0 0 0)
-;;   (sdl2:render-clear renderer)
+        (let ((delta (- (sdl2:get-ticks) start-time)))
+          (when (< delta *desired-delta*)
+            (sdl2:delay (ceiling (- *desired-delta* delta)))))
+        )))
+  )
 
-;;   (sdl2:set-render-draw-color renderer 255 255 255 255)
-;;   (sdl2:render-draw-line renderer 0 0 300 300)
-  
-;;   (sdl2:set-render-target renderer nil)
+(defparameter ref nil)
 
-;;   (let ((dst (sdl2:make-rect 0 0 *width* *height*)))
-;;     (sdl2:render-copy renderer texture :dest-rect dst))
-;;   (print *running*)
-;;   )
+(defun run-interface ()
+  (sdl2:init sdl2:init-video)
+  (let ((window (sdl2:create-window "cl-spectrum" 100 100 *width* *height* #x4)))
+    (setf ref window)
+    (when (cffi:null-pointer-p window)
+      (error "window creation failed"))
 
-;; (defun main ()
-;;   (bt:make-thread
-;;    (lambda ()
-;;      (sdl2:with-init (:video)
-;;        (sdl2:with-window (window :title "cl-spectrum"
-;;                                  :w *width*
-;;                                  :h *height*)
-;;          (sdl2:with-renderer (renderer window :index -1 :flags '(:software))
-           
-;;            (let ((texture (sdl2:create-texture renderer sdl2:+pixelformat-rgba8888+ SDL2-FFI:+SDL-TEXTUREACCESS-TARGET+ *width* *height*)))
+    (let ((renderer (sdl2:create-renderer window -1 1)))
+      (when (cffi:null-pointer-p renderer)
+        (error "renderer creation failed"))
+      
+      (unwind-protect
+           (continue (interface-loop window renderer))
+        (sdl2:destroy-renderer renderer)
+        (sdl2:destroy-window window)
+        (sdl2:quit)
+        (format t "quit")
+        (setf *running* t)
+        ))) ; render software = 1
+  )
 
-;;              (sdl2-ffi.functions:sdl-poll-event)
-;;              (sdl2:with-event-loop (:method :poll)
-;;                (:quit () t)
-;;                (:idle () (if *running*
-;;                              (sdl-loop renderer texture)
-;;                              (sdl2:push-event :quit)))))))))))
+
+(defun main ()
+  (bt:make-thread 'run-interface))

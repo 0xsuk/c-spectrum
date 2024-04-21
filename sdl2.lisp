@@ -16,7 +16,8 @@
   (x :int)
   (y :int)
   (w :int)
-  (h :int))
+  (h :int)
+  (flags :uint32))
 
 (cffi:defcfun (create-renderer "SDL_CreateRenderer") :pointer
   (window :pointer)
@@ -32,7 +33,8 @@
 
 (cffi:defcfun (get-ticks "SDL_GetTicks") :int)
 
-(cffi:defcfun (poll-event "SDL_PollEvent") :int)
+(cffi:defcfun (poll-event "SDL_PollEvent") :int
+  (event :pointer))
 
 (cffi:defcfun (set-render-draw-color "SDL_SetRenderDrawColor") :int
   (renderer :pointer)
