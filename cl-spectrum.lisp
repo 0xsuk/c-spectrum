@@ -108,19 +108,18 @@
 (defparameter *fps* 30)
 (defparameter *desired-delta* (/ 1000 *fps*))
 
-(defun draw (event& renderer texture)
+(defun draw (event renderer texture)
   (let ((start-time (sdl2:get-ticks)))
     
-    (error "error okoota")
-    
-    (loop while (= 1 (sdl2:poll-event event&)) do
-      (if (= (cffi:mem-ref event& :int32) #x100) ; =quit
+    (loop while (= 1 (sdl2:poll-event event)) do
+      (if (= (cffi:mem-ref event :int32) #x100) ; =quit
           (setf *running* nil)))
     
     (sdl2:set-render-target renderer texture)
 
-    (sdl2:set-render-draw-color renderer 255 100 255 100)
-    (sdl2:render-draw-line renderer 100 0 *width* *height*)
+    (sdl2:set-render-draw-color renderer 100 255 255 255)
+    (sdl2:render-draw-line renderer 0 0 *width* *height*)
+    (sdl2:render-draw-line renderer 0 *height* *width* 0)
     (sdl2:set-render-target renderer (cffi:null-pointer))
     
     (cffi:with-foreign-object (dst 'sdl2:rect)
@@ -138,9 +137,11 @@
 
 (defun interface-loop (renderer)
   (let ((texture (sdl2:create-texture renderer 3373694468 2 *width* *height*))) ; RGBA=, TARGEt=2
-    (cffi:with-foreign-object (event& :int32)
+    (sdl2:set-texture-blend-mode texture 0)
+    (cffi:with-foreign-object (event :int32)
       (loop while *running* do
-        (draw event& renderer texture))))
+        (draw event renderer texture)
+        (sdl2:render-present renderer))))
   )
 
 (defparameter ref nil)

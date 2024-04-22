@@ -25,7 +25,8 @@
    #:render-fill-rect
    #:rect
    #:INIT-VIDEO
-   #:render-draw-line))
+   #:render-draw-line
+   #:set-texture-blend-mode))
 
 (defpackage :alsa
   (:use

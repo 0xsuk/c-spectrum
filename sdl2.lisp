@@ -75,15 +75,22 @@
   (renderer :pointer)
   (rect :pointer))
 
-(defcstruct rect
+(cffi:defcstruct rect
   (x :int)
   (y :int)
   (w :int)
   (h :int))
 
-(defcfun (render-draw-line "SDL_RenderDrawLine") :int
+(cffi:defcfun (render-draw-line "SDL_RenderDrawLine") :int
   (renderer :pointer)
   (x1 :int)
   (y1 :int)
   (x2 :int)
   (y2 :int))
+
+(defcfun (set-texture-blend-mode "SDL_SetTextureBlendMode") :int
+  (texture :pointer)
+  (blend-mode :int))
+
+(defcfun (render-present "SDL_RenderPresent") :void
+  (renderer :pointer))
