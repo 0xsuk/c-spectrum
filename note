@@ -1,0 +1,5 @@
+how to compile:
+download SDL-2.2.30.2 from github release (devel zip)
+place dll in current dir.
+
+cl /I.\SDL2-2.30.2\include\ main.c SDL2main.lib SDL2.lib shell32.lib /link /LIBPATH:".\SDL2-2.30.2\lib\x64" /SUBSYSTEM:WINDOWS
