@@ -2,4 +2,14 @@ how to compile:
 download SDL-2.2.30.2 from github release (devel zip)
 place dll in current dir.
 
-cl /I.\SDL2-2.30.2\include\ main.c SDL2main.lib SDL2.lib shell32.lib /link /LIBPATH:".\SDL2-2.30.2\lib\x64" /SUBSYSTEM:WINDOWS
+DO NOT USE POWERSHELL
+
+set PKG_CONFIG_PATH in windows to path/to/GNUWIN32/lib
+make sure libpng is there
+
+clone kissfft
+
+mkdir build
+cd build
+cmake .. (TOOLS/TEST is modified to be OFF)
+cmake --build .
