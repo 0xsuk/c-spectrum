@@ -1,59 +1,44 @@
-/*This source code copyrighted by Lazy Foo' Productions 2004-2024
-and may not be redistributed without written permission.*/
-
-//Using SDL and standard IO
-#include <SDL.h>
 #include <stdio.h>
-#include "kiss_fft.h"
+#include "SDL.h"
 
-//Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+int main() {
+  if (SDL_Init(SDL_INIT_VIDEO)) {
+    printf("SDL INIT FAILED|n", SDL_GetError());
+    return 1;
+  }
+  
+  int width = 600;
+  int height = 600;
+  
+  SDL_Window* window = SDL_CreateWindow("c-spectrum", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+  if (window == NULL) {
+    printf("Window creation failed: %s\n", SDL_GetError());
+    return 1;
+  }
+  
+  SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+  if (renderer == NULL) {
+    printf("Renderer creation failed: %s\n", SDL_GetError());
+    return 1;
+  }
+  
+  SDL_Event event;
+  while (1) {
+    int start = SDL_GetTicks();
 
-int main( int argc, char* args[] )
-{
-	//The window we'll be rendering to
-	SDL_Window* window = NULL;
-	
-	//The surface contained by the window
-	SDL_Surface* screenSurface = NULL;
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_QUIT) {
+        goto cleanup;
+      }
+    }
+  }
+  
+  printf("hello sdl\n");
 
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-	{
-		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-	}
-	else
-	{
-		//Create window
-		window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-		if( window == NULL )
-		{
-			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
-		}
-		else
-		{
-			//Get window surface
-			screenSurface = SDL_GetWindowSurface( window );
+ cleanup:
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
 
-			//Fill the surface white
-			SDL_FillRect( screenSurface, NULL, SDL_MapRGB( screenSurface->format, 0xFF, 0xFF, 0xFF ) );
-			
-			//Update the surface
-			SDL_UpdateWindowSurface( window );
-            
-            //Hack to get window to stay up
-            SDL_Event e; 
-            int quit = 0;
-            while( quit == 0 ){ while( SDL_PollEvent( &e ) ){ if( e.type == SDL_QUIT ) quit = 1; } }
-		}
-	}
-
-	//Destroy window
-	SDL_DestroyWindow( window );
-
-	//Quit SDL subsystems
-	SDL_Quit();
-
-	return 0;
+  return 0;
 }
