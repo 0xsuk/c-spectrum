@@ -1,5 +1,11 @@
 #include <stdio.h>
 #include "SDL.h"
+#include <windows.h>
+
+DWORD WINAPI audioThread() {
+  printf("hello audio\n");
+  return 0;
+}
 
 int main() {
   if (SDL_Init(SDL_INIT_VIDEO)) {
@@ -21,6 +27,15 @@ int main() {
     printf("Renderer creation failed: %s\n", SDL_GetError());
     return 1;
   }
+  
+  HANDLE aThread = CreateThread(
+                                NULL, //security type
+                                0, //initial stack size
+                                audioThread,
+                                NULL, //args to func
+                                0, //or CreateSuspended
+                                NULL //pointer to store thread id
+  );
   
   SDL_Event event;
   while (1) {
