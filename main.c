@@ -1,13 +1,16 @@
 #include <stdio.h>
 #include "SDL.h"
 #include <windows.h>
+#include <mmdeviceapi.h>
+#include <endpointvolume.h>
+#include <objbase.h>
 
 DWORD WINAPI audioThread() {
   printf("hello audio\n");
   return 0;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
   if (SDL_Init(SDL_INIT_VIDEO)) {
     printf("SDL INIT FAILED|n", SDL_GetError());
     return 1;
