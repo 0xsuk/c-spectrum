@@ -3,16 +3,19 @@
 #include <windows.h>
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
-#include <objbase.h>
 
 DWORD WINAPI audioThread() {
   printf("hello audio\n");
   return 0;
 }
 
+void audioInit() {
+  
+}
+
 int main(int argc, char* argv[]) {
   if (SDL_Init(SDL_INIT_VIDEO)) {
-    printf("SDL INIT FAILED|n", SDL_GetError());
+    printf("SDL INIT FAILED: %s\n", SDL_GetError());
     return 1;
   }
   
@@ -40,6 +43,7 @@ int main(int argc, char* argv[]) {
                                 NULL //pointer to store thread id
   );
   
+  int desired_delta = 1000 / 30;
   SDL_Event event;
   while (1) {
     int start = SDL_GetTicks();
@@ -48,6 +52,11 @@ int main(int argc, char* argv[]) {
       if (event.type == SDL_QUIT) {
         goto cleanup;
       }
+    }
+
+    int delta = SDL_GetTicks() - start;
+    if (delta < desired_delta) {
+      SDL_Delay(desired_delta - delta);
     }
   }
   
