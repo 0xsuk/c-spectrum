@@ -1,25 +1,15 @@
 how to compile:
-download SDL-2.2.30.2 from github release (devel zip)
-place dll in current dir.
+cd kissfft
+mkdir build && cd build && cmake .. -G "MSYS Makefiles"
 
-
-For kissfft
-pacman install libpng
-set static OFF, TEST OFF, TOOLS OFF in cmakelists.txt
-mkdir build && cd build && cmake .. -G"MSYS Makefiles" && make
-
-
+# go back to project root dir
+mkdir build && cd build && cmake .. -G "MSYS Makefiles"
+cd ..
+./build/c-spectrum.exe
 
 
 ###########OBSOLTE (for MSVC)
 DO NOT USE POWERSHELL
 set PKG_CONFIG_PATH in windows to path/to/GNUWIN32/lib
 make sure libpng is there
-
-clone kissfft
-
-mkdir build
-cd build
-cmake .. (TOOLS/TEST is modified to be OFF)
-cmake --build .
 ################

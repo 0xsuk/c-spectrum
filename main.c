@@ -1,16 +1,50 @@
 #include <stdio.h>
 #include "SDL.h"
 #include <windows.h>
-#include <mmdeviceapi.h>
-#include <endpointvolume.h>
+#include "portaudio.h"
+
 
 DWORD WINAPI audioThread() {
   printf("hello audio\n");
   return 0;
 }
 
-void audioInit() {
+static int patestCallback( const void *inputBuffer, void *outputBuffer,
+                           unsigned long framesPerBuffer,
+                           const PaStreamCallbackTimeInfo* timeInfo,
+                           PaStreamCallbackFlags statusFlags,
+                           void *userData ) {
   
+
+  return 1;
+}
+
+void audioInit() {
+  PaStream* stream;
+  PaError err = Pa_Initialize();
+
+  if (err != paNoError) {goto error;}
+
+  err = Pa_OpenDefaultStream(&stream, 2, 2, paFloat32, 44100, 256, patestCallback, NULL);
+  if (err != paNoError) {goto error;}
+ 
+  err = Pa_StartStream( stream );
+  if (err != paNoError) goto error;
+
+  /* Sleep for several seconds. */
+  Pa_Sleep(4*1000); //mili
+
+  err = Pa_StopStream(stream);
+  if (err != paNoError) goto error;
+  err = Pa_CloseStream( stream );
+  if (err != paNoError) goto error;
+  Pa_Terminate();
+  printf("Test finished.\n");
+  return;
+ 
+ error:
+  Pa_Terminate();
+  printf("failed to initialize portaudio: %s\n", Pa_GetErrorText(err));
 }
 
 int main(int argc, char* argv[]) {
@@ -18,6 +52,9 @@ int main(int argc, char* argv[]) {
     printf("SDL INIT FAILED: %s\n", SDL_GetError());
     return 1;
   }
+  
+  audioInit();
+  
   
   int width = 600;
   int height = 600;
