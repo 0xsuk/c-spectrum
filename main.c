@@ -1,50 +1,58 @@
+#include <Windows.h>
 #include <stdio.h>
-#include "SDL.h"
-#include <windows.h>
 #include "portaudio.h"
-
-
-DWORD WINAPI audioThread() {
-  printf("hello audio\n");
-  return 0;
-}
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 static int patestCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
                            const PaStreamCallbackTimeInfo* timeInfo,
                            PaStreamCallbackFlags statusFlags,
                            void *userData ) {
-  
 
-  return 1;
+  float sum = 0.0;
+  for (int i = 0; i<framesPerBuffer; i++) {
+    sum += ((float *)inputBuffer)[i];
+  }
+  
+  printf("sum: %lf\n", sum);
+  
+  return 0;
 }
 
 void audioInit() {
   PaStream* stream;
   PaError err = Pa_Initialize();
 
-  if (err != paNoError) {goto error;}
+  if (err != paNoError) goto error;
 
   err = Pa_OpenDefaultStream(&stream, 2, 2, paFloat32, 44100, 256, patestCallback, NULL);
-  if (err != paNoError) {goto error;}
+  if (err != paNoError) goto error;
  
   err = Pa_StartStream( stream );
   if (err != paNoError) goto error;
 
   /* Sleep for several seconds. */
   Pa_Sleep(4*1000); //mili
+  printf("done\n");
 
-  err = Pa_StopStream(stream);
-  if (err != paNoError) goto error;
-  err = Pa_CloseStream( stream );
-  if (err != paNoError) goto error;
-  Pa_Terminate();
-  printf("Test finished.\n");
+  /* err = Pa_StopStream(stream); */
+  /* if (err != paNoError) goto error; */
+  /* err = Pa_CloseStream( stream ); */
+  /* if (err != paNoError) goto error; */
+  /* Pa_Terminate(); */
+  /* printf("Test finished.\n"); */
   return;
  
  error:
   Pa_Terminate();
   printf("failed to initialize portaudio: %s\n", Pa_GetErrorText(err));
+}
+
+DWORD WINAPI audioThread() {
+  printf("hello audio\n");
+  audioInit();
+  return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -53,7 +61,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  audioInit();
+  HANDLE aThread = CreateThread(
+                                NULL, //security type
+                                0, //initial stack size
+                                audioThread,
+                                NULL, //args to func
+                                0, //or CreateSuspended
+                                NULL //pointer to store thread id
+  );
   
   
   int width = 600;
@@ -71,14 +86,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  HANDLE aThread = CreateThread(
-                                NULL, //security type
-                                0, //initial stack size
-                                audioThread,
-                                NULL, //args to func
-                                0, //or CreateSuspended
-                                NULL //pointer to store thread id
-  );
+  SDL_Surface* image = IMG_Load("dmc.jpg");
+  if (!image) {
+    printf("bad\n");
+  }
+  
+  
   
   int desired_delta = 1000 / 30;
   SDL_Event event;
@@ -105,4 +118,4 @@ int main(int argc, char* argv[]) {
   SDL_Quit();
 
   return 0;
-}
+ }
