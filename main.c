@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+int radius = 200;
+
 static int patestCallback( const void *inputBuffer, void *outputBuffer,
                            unsigned long framesPerBuffer,
                            const PaStreamCallbackTimeInfo* timeInfo,
@@ -12,10 +14,12 @@ static int patestCallback( const void *inputBuffer, void *outputBuffer,
 
   float sum = 0.0;
   for (int i = 0; i<framesPerBuffer; i++) {
-    sum += ((float *)inputBuffer)[i];
+    sum += fabs(((float *)inputBuffer)[i]);
   }
   
-  printf("sum: %lf\n", sum);
+  /* printf("sum: %lf\n", sum); */
+  
+  radius = 200 + sum*10;
   
   return 0;
 }
@@ -55,7 +59,18 @@ DWORD WINAPI audioThread() {
   return 0;
 }
 
+//calc top-left position of image given radious
+void calcPosition(int winWidth, int winHeight, int radius, int* left, int* top) {
+  *left = (winWidth/2.0) - radius;
+  *top = (winHeight/2.0) - radius;
+}
+
 int main(int argc, char* argv[]) {
+  int width = 600;
+  int height = 600;
+  
+
+  
   if (SDL_Init(SDL_INIT_VIDEO)) {
     printf("SDL INIT FAILED: %s\n", SDL_GetError());
     return 1;
@@ -71,9 +86,6 @@ int main(int argc, char* argv[]) {
   );
   
   
-  int width = 600;
-  int height = 600;
-  
   SDL_Window* window = SDL_CreateWindow("c-spectrum", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
   if (window == NULL) {
     printf("Window creation failed: %s\n", SDL_GetError());
@@ -86,8 +98,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   
-  SDL_Surface* image = IMG_Load("dmc.jpg");
-  if (!image) {
+  SDL_Texture* imageTexture = IMG_LoadTexture(renderer, "../dmc-round.png"); //ASSUME: exe is in build, jpg is in root
+  if (imageTexture == NULL) {
     printf("bad\n");
   }
   
@@ -95,6 +107,7 @@ int main(int argc, char* argv[]) {
   
   int desired_delta = 1000 / 30;
   SDL_Event event;
+  
   while (1) {
     int start = SDL_GetTicks();
 
@@ -103,7 +116,18 @@ int main(int argc, char* argv[]) {
         goto cleanup;
       }
     }
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderTarget(renderer, imageTexture);
+    int left;
+    int top;
+    calcPosition(width, height, radius, &left, &top);
+    SDL_Rect dst = {left, top, radius*2, radius*2};
+    SDL_RenderCopy(renderer, imageTexture, NULL, &dst);
+    SDL_SetRenderTarget(renderer, NULL);
 
+    SDL_RenderPresent(renderer);
+    
     int delta = SDL_GetTicks() - start;
     if (delta < desired_delta) {
       SDL_Delay(desired_delta - delta);
